@@ -21,7 +21,6 @@ name String
 email String @unique
 password String
 createdAt DateTime @map("created_at")
-Database migration 1
 orders Order[]
 }
 model Category {
