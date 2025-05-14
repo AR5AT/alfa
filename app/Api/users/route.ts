@@ -1,34 +1,37 @@
-import { NextRequest, NextResponse } from 'next/server';
-import {  PrismaClient } from '@prisma/client';
+// First, create a lib/prisma.ts file if you don't have it already:
+// lib/prisma.ts
+import { NextResponse } from 'next/server'
+import { PrismaClient } from '@prisma/client'
 
-export async function POST(req: NextRequest) {
+const globalForPrisma = global as unknown as { prisma: PrismaClient }
+
+export const prisma = globalForPrisma.prisma || new PrismaClient()
+
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+
+// Then update your app/api/users/route.ts:
+
+
+
+export async function POST(request: Request) {
   try {
-    const body = await req.json();
+    const body = await request.json()
     const { email, name, password } = body;
 
-    const newUser = await  PrismaClient.user.create({
+    const newUser = await prisma.user.create({
       data: {
         email,
         name,
-        password,
-        createdAt: new Date(),
+        password, // Note: In a real app, you should hash this password!
       },
-    });
+    })
 
-    return NextResponse.json(newUser, { status: 201 });
-  } catch (error: any) {
-    if (error.code === 'P2002') {
-      return NextResponse.json(
-        { message: 'User with this email already exists' },
-        { status: 409 }
-      );
-    }
-    console.error('Error creating user:', error);
-    return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json(newUser, { status: 201 })
+  } catch (error) {
+    console.error('Error creating user:', error)
+    return NextResponse.json(
+      { error: 'Error creating user', details: (error as Error).message },
+      { status: 500 }
+    )
   }
-}
-
-export async function GET() {
-  const users = await  PrismaClient.user.findMany();
-  return NextResponse.json(users);
 }
