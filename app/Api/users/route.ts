@@ -43,11 +43,13 @@ export async function POST(request: NextRequest) {
     if (name !== undefined) {
       data.name = name;
     }
+    
+    
 
     const user = await prisma.user.create({
       data: {
         email,
-        name,
+        name: name ?? '', 
         password: hashedPassword,
       },
       select: { id: true, email: true, name: true },
