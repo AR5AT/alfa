@@ -1,3 +1,7 @@
+import prisma from '../../db/prisma';
+import { NextResponse, NextRequest } from 'next/server';
+import bcrypt from 'bcryptjs';
+
 // PUT /api/user
 export async function PUT(request: NextRequest) {
     try {
