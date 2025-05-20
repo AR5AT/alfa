@@ -1,5 +1,5 @@
 import { request } from 'http';
-import prisma from '../../db/prisma'
+import prisma from '../../db/db'
 import { NextResponse } from 'next/server';
 
 

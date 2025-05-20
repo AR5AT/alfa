@@ -1,4 +1,4 @@
-import prisma from '../../db/prisma';
+import prisma from '../../db/db';
 import { NextRequest, NextResponse } from 'next/server';
 
 // GET /api/orders — получить список заказов
@@ -10,8 +10,7 @@ export async function GET() {
         userId: true,
         total: true,
         status: true,
-        createdAt: true,
-        updatedAt: true,
+
       },
     });
     return NextResponse.json(orders);
