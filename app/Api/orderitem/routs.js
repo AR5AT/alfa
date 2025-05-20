@@ -1,4 +1,4 @@
-...import { request } from 'http';
+import { request } from 'http';
 import prisma from '../../db/prisma'
 import { NextResponse } from 'next/server';
 
@@ -38,7 +38,7 @@ export async function GET(request) {
       return NextResponse.json(orderItems);
     }
   } catch (error) {
-    return NextResponse.json({ error: Ошибка при получении позиций заказа ${error} }, { status: 500 });
+    return NextResponse.json({ error: `Ошибка при получении позиций заказа ${error}` }, { status: 500 });
   }
 }
 
@@ -81,7 +81,7 @@ export async function POST(req) {
     
     return NextResponse.json(newOrderItem, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: Ошибка при создании позиции заказа  ${error} }, { status: 500 });
+    return NextResponse.json({ error: `Ошибка при создании позиции заказа  ${error}` }, { status: 500 });
   }
 }
 
@@ -104,7 +104,7 @@ export async function PUT(req) {
     });
     return NextResponse.json(updatedOrderItem);
   } catch (error) {
-    return NextResponse.json({ error: Ошибка при обновлении позиции заказа  ${error} }, { status: 500 });
+    return NextResponse.json({ error: `Ошибка при обновлении позиции заказа  ${error}`}, { status: 500 });
   }
 }
 
@@ -127,4 +127,3 @@ try {
   }
 }
 
-`
