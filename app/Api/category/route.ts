@@ -4,54 +4,54 @@ import bcrypt from 'bcryptjs';
 
 export async function GET() {
   try {
-    const users = await prisma.user.findMany({
+    const categories = await prisma.category.findMany({
       select: {
         id: true,
-        email: true,
         name: true,
+        description: true,
+      
       },
     });
-    return NextResponse.json(users);
+    return NextResponse.json(categories);
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch users' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch categories' }, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email, name, password } = body;
-
-    if (!email || !password) {
-      return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
+    const { name, description, imageUrl } = body;
+    
+    if (!name) {
+      return NextResponse.json({ error: 'Category name is required' }, { status: 400 });
     }
-
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
+    
+    const existingCategory = await prisma.category.findFirst({
+      where: { name },
     });
-
-    if (existingUser) {
-      return NextResponse.json({ error: 'User with this email already exists' }, { status: 409 });
+    
+    if (existingCategory) {
+      return NextResponse.json({ error: 'Category with this name already exists' }, { status: 409 });
     }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const user = await prisma.user.create({
+    
+    const category = await prisma.category.create({
       data: {
-        email,
         name,
-        password: hashedPassword,
+        description,
+
       },
       select: {
         id: true,
-        email: true,
         name: true,
+        description: true,
+  
       },
     });
-
-    return NextResponse.json(user, { status: 201 });
+    
+    return NextResponse.json(category, { status: 201 });
   } catch (error: unknown) {
-    let message = 'Failed to create user';
+    let message = 'Failed to create category';
     if (error instanceof Error) {
       message += `\n${error.message}`;
     } else {
@@ -62,9 +62,104 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
-  // Твой код обновления пользователя без изменений
+  try {
+    const body = await request.json();
+    const { id, name, description, imageUrl } = body;
+    
+    if (!id) {
+      return NextResponse.json({ error: 'Category ID is required' }, { status: 400 });
+    }
+    
+    const existingCategory = await prisma.category.findUnique({
+      where: { id },
+    });
+    
+    if (!existingCategory) {
+      return NextResponse.json({ error: 'Category not found' }, { status: 404 });
+    }
+    
+    // Check if updating to a name that already exists for another category
+    if (name && name !== existingCategory.name) {
+      const duplicateName = await prisma.category.findFirst({
+        where: { 
+          name,
+          id: { not: id }
+        },
+      });
+      
+      if (duplicateName) {
+        return NextResponse.json({ error: 'Another category with this name already exists' }, { status: 409 });
+      }
+    }
+    
+    const updatedCategory = await prisma.category.update({
+      where: { id },
+      data: {
+        name: name !== undefined ? name : existingCategory.name,
+        description: description !== undefined ? description : existingCategory.description,
+      
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+   
+      },
+    });
+    
+    return NextResponse.json(updatedCategory);
+  } catch (error: unknown) {
+    let message = 'Failed to update category';
+    if (error instanceof Error) {
+      message += `\n${error.message}`;
+    } else {
+      message += `\n${String(error)}`;
+    }
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 }
 
 export async function DELETE(request: NextRequest) {
-  // Твой код удаления пользователя без изменений
+  try {
+    const url = new URL(request.url);
+    const id = url.searchParams.get('id');
+    
+    if (!id) {
+      return NextResponse.json({ error: 'Category ID is required' }, { status: 400 });
+    }
+    
+    const existingCategory = await prisma.category.findUnique({
+      where: { id },
+    });
+    
+    if (!existingCategory) {
+      return NextResponse.json({ error: 'Category not found' }, { status: 404 });
+    }
+    
+    // Check if there are products associated with this category
+    const productsCount = await prisma.product.count({
+      where: { categoryId: id },
+    });
+    
+    if (productsCount > 0) {
+      return NextResponse.json({ 
+        error: `Cannot delete category: ${productsCount} products are associated with it`,
+        productsCount 
+      }, { status: 400 });
+    }
+    
+    await prisma.category.delete({
+      where: { id },
+    });
+    
+    return NextResponse.json({ message: 'Category deleted successfully' });
+  } catch (error: unknown) {
+    let message = 'Failed to delete category';
+    if (error instanceof Error) {
+      message += `\n${error.message}`;
+    } else {
+      message += `\n${String(error)}`;
+    }
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 }

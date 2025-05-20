@@ -63,3 +63,24 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
+
+// DELETE /api/user?id=1
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const idParam = searchParams.get('id');
+    const id = idParam ? parseInt(idParam, 10) : NaN;
+    
+    if (!idParam || isNaN(id)) {
+      return NextResponse.json({ error: 'Valid User ID is required' }, { status: 400 });
+    }
+    
+    await prisma.user.delete({ where: { id } });
+    return NextResponse.json({ message: `User with id ${id} deleted` });
+  } catch (error) {
+    const message = error instanceof Error
+      ? `Failed to delete user\n${error.message}`
+      : `Failed to delete user\n${String(error)}`;
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}
