@@ -22,6 +22,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/db/db.ts", "app/api/users/route.ts", "app/api/orderitem/routs.js", "app/api/products/route.js"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/db/db.ts", "app/api/users/route.ts", "app/api/orderitem/routs.ts", "app/api/products/route.js"],
   "exclude": ["node_modules"]
 }
