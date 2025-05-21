@@ -1,4 +1,4 @@
-import prisma from '../../db/db';
+import { prisma } from '@/app/db/db';
 import { NextRequest, NextResponse } from 'next/server';
 
 // GET /api/orders — получить список заказов
