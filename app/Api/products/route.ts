@@ -1,6 +1,5 @@
 
-// app/api/products/route.js
-import prisma from '@/lib/prisma';
+import { prisma } from '@/app/db/db';
 import { NextResponse } from 'next/server';
 
 // GET all products
@@ -14,7 +13,7 @@ export async function GET() {
 }
 
 // POST create a new product
-export async function POST(request) {
+export async function POST(request:Request) {
   try {
     const body = await request.json();
     const { name, description, price, stock, imageUrl } = body;
@@ -31,7 +30,7 @@ export async function POST(request) {
         description,
         price: parseFloat(price),
         stock: stock ? parseInt(stock) : 0,
-        imageUrl,
+        imageUrl:
       },
     });
     
